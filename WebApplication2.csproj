@@ -135,6 +135,8 @@
     <Content Include="Content\Site.css" />
     <Content Include="Default.aspx" />
     <Content Include="favicon.ico" />
+    <Content Include="fb-group.js" />
+    <Content Include="fb.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="generateToken.aspx" />
     <Content Include="Global.asax" />
@@ -146,6 +148,7 @@
     </Content>
     <Content Include="privacy.html" />
     <Content Include="WebForm1.aspx" />
+    <Content Include="index.aspx" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -243,6 +246,13 @@
     </Compile>
     <Compile Include="WebForm1.aspx.designer.cs">
       <DependentUpon>WebForm1.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="index.aspx.cs">
+      <DependentUpon>index.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="index.aspx.designer.cs">
+      <DependentUpon>index.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

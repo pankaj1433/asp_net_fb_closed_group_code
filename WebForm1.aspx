@@ -14,8 +14,8 @@
         <div class="top-bar">
             <img src='Content/facebook-logo.png' height="30",width="30" />
         </div>
+        <asp:PlaceHolder ID="PlaceHolder2" runat="server"></asp:PlaceHolder>
         <div class = "content">
-                
                     <asp:PlaceHolder ID="PlaceHolder1" runat="server"></asp:PlaceHolder>
                     <div class="load-more-wrapper"><div id="load-more" >Load More</div></div>
                     <asp:HiddenField ID="HiddenField1" runat="server" />
@@ -51,7 +51,6 @@
                     type: 'GET',
                     url: loadMoreUrl +"&fields=message,from{name,picture,link}",
                     success: function (result) {
-                        console.log(result, 'results??????????????????????')
                         if (result['data'].length > 0) {
                             renderMoreComments(result['data'], element.id);
                             //set load more for next data
@@ -65,21 +64,30 @@
              }
          }
          function renderMoreContent(data) {
-             console.log('rendermorecontent', data);
+             var monthNames = [
+                 "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+             ];
+             //January 31, 2018 at 07:09 PM
+
              var feedHtml = '';
              data.forEach(function (element) {
+                 var dateTimeStamp = new Date(element["created_time"]);
+                 var created_date = monthNames[dateTimeStamp.getMonth()] + ' ' + dateTimeStamp.getDate() + ', ' + dateTimeStamp.getFullYear() + ' at ' + dateTimeStamp.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
                  feedHtml = feedHtml + "<div class= 'feed'>";
                  feedHtml = feedHtml + "<div class = 'feed-card'>";
                  feedHtml = feedHtml + "<div>";
                  feedHtml = feedHtml + "<img class='profile-thumb' src='" + element["from"]["picture"]["data"]["url"] + "' /><div>";
                  feedHtml = feedHtml + "<a class='profile-name' href='" + element["from"]["link"] + "' >" + element["from"]["name"] + "</a>";
-                 feedHtml = feedHtml + "<span class = 'created-time'>" + element["created_time"] + "</span>";
+                 feedHtml = feedHtml + "<span class = 'created-time'>" + created_date + "</span>";
                  feedHtml = feedHtml + "</div></div><div class='feed-msg-wrapper'>";
                  if (element["message"] != null) {
                      feedHtml = feedHtml + "<p class='feed-msg'>" + element["message"] + "</p>";
                  }
-                 else {
+                 else if (element["story"] != null) {
                      feedHtml = feedHtml + "<p class='feed-story'>" + element["story"] + "</p>";
+                 }
+                 else if (element["picture"] != null) {
+                     feedHtml = feedHtml + "<div class='post-image'><img src='" + element["picture"] + "'></div>";
                  }
                  feedHtml = feedHtml + "</div>";
 
@@ -147,6 +155,22 @@
 
     </script>
     <style>
+        .post-image {
+                margin-left: 40px;
+             padding: 10px;
+        }
+        .cover-wrapper {
+            padding: 2px;
+            border: 1px solid #e5e5e5;
+            height: 250px;
+            overflow: hidden;
+        }
+        .cover {
+            width: calc(100% - 2px);
+            border: solid 1px black;
+            position: relative;
+             top: -220px;
+        }
         #load-more {
             cursor: pointer;
             width: 100px;
@@ -182,7 +206,7 @@
             display: block;
             line-height: 16px;
             float: left;
-            width: calc(100% - 60px);
+            max-width: calc(100% - 60px);
         }
         .comment-profile-thumb {
             border-radius:50%;
@@ -273,10 +297,10 @@
     }
     .feed-msg {
         font-family: sans-serif;
-        font-size: 24px;
+        font-size: 14px;
         font-weight: 300;
         letter-spacing: 0;
-        line-height: 28px;
+        line-height: 20px;
         margin: 14px 0 7px 0;
     }
     .feed-story {

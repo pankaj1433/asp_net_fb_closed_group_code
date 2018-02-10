@@ -7,7 +7,8 @@ using System.Web.UI.WebControls;
 using System.Net;
 using System.IO;
 using Newtonsoft.Json.Linq;
-
+using System.Data.SqlClient;
+using System.Data;
 
 namespace WebApplication2
 {
@@ -27,7 +28,7 @@ namespace WebApplication2
         protected void Button2_Click(object sender, EventArgs e)
         {
 
-            Response.Write("Changed: " + HiddenField1.Value.ToString());
+            //Response.Write("Changed: " + HiddenField1.Value.ToString());
 
             string appId = "571998726469405";
             string appSecretKey = "c5adf6b68d1364a5232e0a14be6b5d13";
@@ -38,9 +39,10 @@ namespace WebApplication2
             requestUrl = requestUrl + "&client_id=" + appId;
             requestUrl = requestUrl + "&client_secret=" + appSecretKey;
             requestUrl = requestUrl + "&fb_exchange_token=" + HiddenField1.Value.ToString();
-            
 
-            Response.Write("<br>request url:" + requestUrl + "<br>");
+            string token = "";
+
+           // Response.Write("<br>request url:" + requestUrl + "<br>");
             try
             {
                 WebRequest request = WebRequest.Create(requestUrl);
@@ -51,12 +53,38 @@ namespace WebApplication2
                 string responseFromServer = reader.ReadToEnd();
                 String responseString = HttpUtility.UrlDecode(responseFromServer.Replace("|~*~|", "&").Replace("\\", ""));
                 var jsonResponse = JObject.Parse(responseString);
+                token = jsonResponse["access_token"].ToString();
 
-                Response.Write(jsonResponse);
+                
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+            }
+            //insert  token into database
+            try
+            {
+                if(token != null)
+                {
+                    Response.Write("TOKEN: " + token);
+                    SqlConnection con = new SqlConnection("user id=PANKAJ;" +
+                                       "password='';server=localhost;" +
+                                       "Trusted_Connection=yes;" +
+                                       "database=dbo; " +
+                                       "connection timeout=30");
+                    SqlCommand com = new SqlCommand();
+                    con.Open();
+                    com.Connection = con; //Pass the connection object to Command
+                    com.CommandType = CommandType.StoredProcedure; // We will use stored procedure.
+                    com.CommandText = "spInsertUser"; //Stored Procedure Name
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Response.Write(ex);
+
             }
         }
     }

@@ -7,6 +7,7 @@ using System.Web.UI.WebControls;
 using System.Net;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using System.Text;
 
 namespace WebApplication2
 {
@@ -15,44 +16,71 @@ namespace WebApplication2
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            string token = "EAAIIOtTnNx0BAHnZB8u61kL3ZBQcPe4v8fbKWHQCVgBX5ofHkt2l5xv8C5PZBZAsARG2qDYzyimuf7BrqICOZCxMGBEb6a2npdUPEZCdOgXr7JTDyIbAlvs1a0ZAuoetxHXnyjMP8BYD7nEQLY69Vm6bApqkPLtyCYZD";
-            string group_id = "143498529659602";
+            string token = "EAAIIOtTnNx0BAPLIpGHMlMp15bOHnqByAmoAbL4ktEkZCXeXYhVES6VvzeZCpQw2ckke7u8VWsYbhrUTxNVgnW24b2UkAJV0t0Qw2ZBTlLtL11cDIIoB5ISwt00ADZAYFza1kZAelihnBiwbEp9ZC88HVb0WrL2BwZD";
+            string group_id = "1448106738825094";
+            string cover_url = "https://graph.facebook.com/v2.12/"+group_id+"?fields=cover,name&access_token="+token;
             try
             {
-                WebRequest request = WebRequest.Create("https://graph.facebook.com/v2.12/"+group_id+"/feed?limit=2&access_token="+token+ "&fields=created_time,story,from{name,picture,link},id,permalink_url,message,comments.summary(1).order(reverse_chronological).limit(4){message,from{name,picture,link}},likes{total_count},picture,attachments");
+                //WebRequest CoverRequest = WebRequest.Create(cover_url);
+
+                //WebResponse CoverResponse = CoverRequest.GetResponse();
+                //Stream CoverDataStream = CoverResponse.GetResponseStream();
+                //StreamReader CoverReader = new StreamReader(CoverDataStream);
+                //string CoverResponseFromServer = CoverReader.ReadToEnd();
+                //String CoverResponseString = HttpUtility.UrlDecode(CoverResponseFromServer.Replace("|~*~|", "&").Replace("\\", ""));
+                //var CoverJsonResponse = JObject.Parse(CoverResponseString);
+
+                //if (CoverJsonResponse["cover"]["source"] != null)
+                //{
+                  //  string coverPic = CoverJsonResponse["cover"]["source"].ToString();
+                   // LiteralControl cover = new LiteralControl("<div class='cover-wrapper'><img class='cover' src='" + coverPic + "'/></div>");
+                   // PlaceHolder2.Controls.Add(cover);
+                //}
                 
+                
+
+                WebRequest request = WebRequest.Create("https://graph.facebook.com/v2.12/" + group_id + "/feed?limit=20&access_token=" + token + "&fields=created_time,story,from{name,picture,link},id,permalink_url,message,comments.summary(1).order(reverse_chronological).limit(4){message,from{name,picture,link}},likes{total_count},picture,attachments");
+
                 WebResponse response = request.GetResponse();
                 Stream dataStream = response.GetResponseStream();
                 StreamReader reader = new StreamReader(dataStream);
                 string responseFromServer = reader.ReadToEnd();
-                String responseString = HttpUtility.UrlDecode(responseFromServer.Replace("|~*~|", "&").Replace("\\", ""));
+                String responseString = HttpUtility.UrlDecode(responseFromServer.Replace("|~*~|", "&").Replace("\\", "").Replace(@"\""", @"'"));
+                
                 var jsonResponse = JObject.Parse(responseString);
-
+                //var jsonResponse = Newtonsoft.Json.JsonConvert.SerializeObject(responseString);
                 //Response.Write(jsonResponse["data"]);
 
 
 
                 LiteralControl feed = new LiteralControl("");
+
                 string feedHtml = "";
                 foreach (var element in jsonResponse["data"])
                 {
-                    //Response.Write(element["created_time"].ToString());
-                    //String timestamp = DateTime.Parse("2018-01-22T16:44:56 0000");
-                    //Response.Write(timestamp);
+     
+                    string d = element["created_time"].ToString().Replace(" ","+");
+                    DateTime d2 = DateTime.Parse(d, null,System.Globalization.DateTimeStyles.AdjustToUniversal);
+                    string createdTime = d2.ToString("MMMM dd, yyyy") + " at " + d2.ToString("hh:mm tt");
+                    //Response.Write(createdTime+"<br>");
                     feedHtml = feedHtml + "<div class= 'feed'>";
                     feedHtml = feedHtml+"<div class = 'feed-card'>";
                     feedHtml = feedHtml + "<div>";
                     feedHtml = feedHtml + "<img class='profile-thumb' src='" + element["from"]["picture"]["data"]["url"] + "' /><div>";
                     feedHtml = feedHtml + "<a class='profile-name' href='" + element["from"]["link"] + "' >" + element["from"]["name"] + "</a>";
-                    feedHtml = feedHtml + "<span class = 'created-time'>" + element["created_time"] + "</span>";
+                    feedHtml = feedHtml + "<span class = 'created-time'>" + createdTime + "</span>";
                     feedHtml = feedHtml + "</div></div><div class='feed-msg-wrapper'>";
                     if (element["message"] != null)
                     {
                         feedHtml = feedHtml + "<p class='feed-msg'>" + element["message"]+ "</p>";
                     }
-                    else
+                    else if (element["story"] != null)
                     {
                         feedHtml = feedHtml + "<p class='feed-story'>" + element["story"]+ "</p>";
+                    }
+                    else if (element["picture"] != null)
+                    {
+                        feedHtml = feedHtml + "<div class='post-image'><img src='" + element["picture"] + "'></div>";
                     }
                     feedHtml = feedHtml + "</div>";
 
